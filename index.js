@@ -4,6 +4,7 @@ require('dotenv').config();
 // const { buildSchema } = require('graphql'); // buildSchema utilidad que me permite crear schemas.
 const { makeExecutableSchema } = require('graphql-tools'); //se utiliza en vez de buildSchema, ya que hace lo mismo pero de una manera mas especializada.
 const express = require('express');
+const cors = require('cors');
 const gqlMiddleware = require('express-graphql');
 const { readFileSync } = require('fs');
 const { join } = require('path');
@@ -14,6 +15,7 @@ const resolvers = require('./lib/resolvers');
 // creo mi servidor.
 const app = express();
 const port = process.env.port || 3500;
+const isDev = process.env.NODE_ENV !== 'production';
 // db();
 // Definir el esquema inicial
 // type Query -> indico que inicio crear acciones de consulta de informacion.
@@ -27,6 +29,7 @@ const schema = makeExecutableSchema({
   resolvers,
 });
 
+app.use(cors());
 // Configuracion de los resolvers, este objeto contiene una propierdad del mismo nombre de la query que va a resolver o ejecutar.
 //Estos resolvers se separan en un archivo para organizar.
 // const resolvers = {
@@ -40,7 +43,7 @@ app.use(
   gqlMiddleware({
     schema: schema, // Schema definido.
     rootValue: resolvers, // Resolvers creados.
-    graphiql: true, // Entonrno de desarrollo de graphql.
+    graphiql: isDev, // Entonrno de desarrollo de graphql.
   })
 );
 
